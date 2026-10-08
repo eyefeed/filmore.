@@ -7,7 +7,7 @@
 <style>
   :root { --bg:#0b0a0a; --fg:#f3ede4; --dim:#8f877c; --accent:#e8b04a; --card:#161413; }
   * { box-sizing:border-box; margin:0; }
-  body { background:var(--bg); color:var(--fg); font:16px/1.5 Georgia,"Times New Roman",serif; min-height:100vh; }
+  body { background:var(--bg); color:var(--fg); font:20px/1.45 Georgia,"Times New Roman",serif; min-height:100vh; }
   #bg { position:fixed; inset:0; background:center/cover no-repeat; opacity:0; transition:opacity 1.6s ease; }
   #bg.on { opacity:1; }
   #shade { position:fixed; inset:0; pointer-events:none; background:linear-gradient(180deg,rgba(11,10,10,.55),rgba(11,10,10,.85) 60%,var(--bg)); }
@@ -20,30 +20,33 @@
   .searched .hero { min-height:46vh; }
   h1 { font-weight:400; letter-spacing:-.04em; line-height:.9; font-size:clamp(4rem,24vw,17rem); }
   h1 span { color:var(--accent); font-style:italic; }
-  .tag { color:var(--dim); margin:1rem 0 2.5rem; font-style:italic; font-size:clamp(1rem,2.2vw,1.3rem); }
-  form { width:min(760px,100%); display:flex; gap:8px; }
-  input { flex:1; min-width:0; background:var(--card); color:var(--fg); border:1px solid #2c2926; border-radius:999px; padding:1.1rem 1.5rem; font:inherit; font-size:1.1rem; }
+  .tag { color:#cfc6b8; margin:1rem 0 2rem; font-style:italic; font-size:clamp(1.3rem,3vw,2rem); }
+  form { width:min(900px,100%); display:flex; gap:12px; }
+  .picks { width:min(900px,100%); display:flex; flex-wrap:wrap; gap:12px; margin-top:16px; justify-content:center; }
+  .pick { background:transparent; color:var(--fg); border:2px solid var(--accent); padding:.9rem 1.6rem; font-size:1.2rem; font-style:italic; font-weight:400; }
+  .pick:hover { background:var(--accent); color:#1a1307; }
+  input { flex:1; min-width:0; background:var(--card); color:var(--fg); border:1px solid #2c2926; border-radius:999px; padding:1.4rem 2rem; font:inherit; font-size:1.5rem; font-style:italic; }
   input:focus { outline:2px solid var(--accent); border-color:transparent; }
-  button { background:var(--accent); color:#1a1307; border:0; border-radius:999px; padding:0 1.8rem; font:inherit; font-weight:700; cursor:pointer; }
+  button { background:var(--accent); color:#1a1307; border:0; border-radius:999px; padding:0 3rem; font:inherit; font-size:1.6rem; font-weight:700; font-style:italic; cursor:pointer; }
   button:disabled { opacity:.5; cursor:wait; }
-  .note { color:var(--dim); font-size:.9rem; margin:1rem 0; min-height:1.4em; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:22px; }
+  .note { color:var(--dim); font-size:1.05rem; margin:1rem 0; min-height:1.4em; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:28px; }
   .film { background:var(--card); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; animation:rise .5s both; }
   @keyframes rise { from { opacity:0; transform:translateY(14px); } }
   .poster { aspect-ratio:2/3; width:100%; object-fit:cover; display:block; background:#221f1c; }
   .ph { aspect-ratio:2/3; display:flex; align-items:center; justify-content:center; padding:16px; text-align:center; font-size:1.3rem;
     background:linear-gradient(160deg,#2a2118,#14110e); color:var(--accent); }
-  .meta { padding:12px 14px 16px; }
-  .meta h2 { font-size:1.05rem; font-weight:700; line-height:1.25; }
-  .dir { color:var(--accent); font-style:italic; margin:2px 0 6px; }
-  .why { color:var(--dim); font-size:.9rem; }
+  .meta { padding:18px 20px 24px; }
+  .meta h2 { font-size:1.6rem; font-style:italic; font-weight:700; line-height:1.25; }
+  .dir { color:var(--accent); font-style:italic; font-size:1.3rem; margin:4px 0 8px; }
+  .why { color:#cfc6b8; font-size:1.05rem; }
   .meta a { color:inherit; text-decoration:none; }
   .meta a:hover h2 { text-decoration:underline; }
   @media (max-width:560px) {
     form { flex-direction:column; }
-    button { padding:1rem; font-size:1.05rem; }
-    .grid { grid-template-columns:repeat(2,1fr); gap:12px; }
-    .meta { padding:10px 10px 14px; }
+    button { padding:1.3rem; font-size:1.5rem; }
+    .pick { flex:1 1 40%; padding:1rem; font-size:1.15rem; }
+    .grid { grid-template-columns:1fr; gap:24px; }
   }
   .err { color:#ff8a7a; }
 </style>
@@ -55,9 +58,15 @@
     <h1>Fil<span>more</span>.</h1>
     <p class="tag">Tell us what you love. We find what you'll love next.</p>
     <form id="form">
-      <input id="q" autocomplete="off" autofocus placeholder="Dark Korean thrillers, slow Turkish drama...">
+      <input id="q" autocomplete="off" autofocus placeholder="What do you feel like?">
       <button id="go">Find</button>
     </form>
+    <div class="picks" id="picks">
+      <button type="button" class="pick">Korean</button>
+      <button type="button" class="pick">Turkish</button>
+      <button type="button" class="pick">Hollywood</button>
+      <button type="button" class="pick">English comedy</button>
+    </div>
     <p class="note" id="note"></p>
   </section>
   <section class="grid" id="grid"></section>
@@ -77,6 +86,11 @@ function setScene(image, label) {
   img.src = image;
 }
 fetch("/api/scene").then((r) => r.json()).then((s) => setScene(s.image, s.title && `${s.title} (${s.year})`)).catch(() => {});
+
+document.querySelectorAll(".pick").forEach((b) => b.addEventListener("click", () => {
+  $("q").value = `${b.textContent} films for people who dislike mainstream picks`;
+  $("form").requestSubmit();
+}));
 
 $("form").addEventListener("submit", async (e) => {
   e.preventDefault();
