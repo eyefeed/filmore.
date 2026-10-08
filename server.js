@@ -6,7 +6,8 @@ import { fileURLToPath } from "node:url";
 const ROOT = join(fileURLToPath(new URL(".", import.meta.url)), "public");
 const PORT = process.env.PORT || 3000;
 const MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-5-5";
-const { ANTHROPIC_API_KEY, TMDB_READ_TOKEN } = process.env;
+const { ANTHROPIC_API_KEY, TMDB_READ_TOKEN, TMDB_API_KEY } = process.env;
+const HAS_TMDB = Boolean(TMDB_READ_TOKEN || TMDB_API_KEY);
 
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".ttf": "font/ttf", ".jpg": "image/jpeg", ".svg": "image/svg+xml" };
 
@@ -41,10 +42,11 @@ async function askClaude(query) {
   return JSON.parse(json);
 }
 
-const tmdb = (path) =>
-  fetch(`https://api.themoviedb.org/3${path}`, { headers: { Authorization: `Bearer ${TMDB_READ_TOKEN}` } }).then((r) =>
-    r.ok ? r.json() : Promise.reject(new Error(`TMDB ${r.status}`)),
-  );
+const tmdb = (path) => {
+  const url = `https://api.themoviedb.org/3${path}${TMDB_READ_TOKEN ? "" : `${path.includes("?") ? "&" : "?"}api_key=${TMDB_API_KEY}`}`;
+  const headers = TMDB_READ_TOKEN ? { Authorization: `Bearer ${TMDB_READ_TOKEN}` } : {};
+  return fetch(url, { headers }).then((r) => (r.ok ? r.json() : Promise.reject(new Error(`TMDB ${r.status}`))));
+};
 
 const norm = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -187,7 +189,7 @@ async function scene() {
 async function recommend(query) {
   if (!ANTHROPIC_API_KEY) return { demo: true, films: DEMO };
   const picks = await askClaude(query);
-  if (!TMDB_READ_TOKEN) return { demo: false, unverified: true, films: picks };
+  if (!HAS_TMDB) return { demo: false, unverified: true, films: picks };
   const checked = await Promise.all(picks.map((p) => verify(p).catch(() => null)));
   return { demo: false, films: checked.filter(Boolean) };
 }
@@ -195,7 +197,7 @@ async function recommend(query) {
 createServer(async (req, res) => {
   try {
     if (req.url === "/api/scene") {
-      const found = TMDB_READ_TOKEN ? await scene().catch(() => null) : null;
+      const found = HAS_TMDB ? await scene().catch(() => null) : null;
       res.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify(found || {}));
       return;
     }
