@@ -11,7 +11,7 @@ node --env-file=.env server.js
 
 Docker: `docker build -t filmore . && docker run -p 3000:3000 --env-file .env filmore`
 
-Without keys it runs in demo mode with a fixed list. The background is a random film poster from TMDB (needs the TMDB token), softened with a cotton-candy wash; after a search it switches to your top pick. Without a token it shows a bundled cinema photo.
+Without keys it runs in demo mode with a fixed list. The background is a random film poster from TMDB (needs the TMDB token), softened with a warm wash; after a search it switches to your top pick. Without a token it shows a bundled cinema photo.
 
 ## How it works
 
