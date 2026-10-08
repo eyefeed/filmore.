@@ -5,52 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Filmore</title>
 <style>
-  :root { --bg:#fff8f0; --fg:#2b1d12; --dim:#7a6655; --accent:#ff7a1a; --card:#ffffff; }
+  :root { --bg:#0a0a0a; --fg:#ffffff; --dim:#9a9a9a; --accent:#ff6a00; --line:rgba(255,255,255,.55); }
   * { box-sizing:border-box; margin:0; }
-  body { background:var(--bg); color:var(--fg); font:20px/1.45 Georgia,"Times New Roman",serif; min-height:100vh; }
-  #bg { position:fixed; inset:0; background:url(/bg.jpg) center/cover no-repeat; opacity:1; transition:opacity 1.6s ease; }
+  body { background:var(--bg); color:var(--fg); font:18px/1.35 "Helvetica Neue",Helvetica,Arial,sans-serif; min-height:100vh; text-transform:uppercase; letter-spacing:.02em; }
+  #bg { position:fixed; inset:0; background:url(/bg.jpg) center/cover no-repeat; opacity:0; transition:opacity 1.6s ease; filter:grayscale(.35) contrast(1.05); }
   #bg.on { opacity:1; }
-  #shade { position:fixed; inset:0; pointer-events:none; background:linear-gradient(180deg,rgba(40,18,0,.45),rgba(60,26,0,.55) 55%,var(--bg) 100%); }
-  #credit { position:fixed; left:16px; bottom:12px; font-size:.75rem; color:#fff; text-shadow:0 1px 4px #000; font-style:italic; z-index:2; }
+  #shade { position:fixed; inset:0; pointer-events:none; background:linear-gradient(180deg,rgba(0,0,0,.72),rgba(0,0,0,.82) 60%,#0a0a0a); }
+  .stripes { position:fixed; left:0; right:0; top:0; height:14px; z-index:3; background:repeating-linear-gradient(135deg,#fff 0 12px,#0a0a0a 12px 24px); }
   main { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:0 16px; }
   .searched main { padding-bottom:80px; }
-  .hero { min-height:100vh; min-height:100svh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; transition:min-height .6s ease; }
-  .searched .hero { min-height:46vh; }
-  h1 { color:#fff; text-shadow:0 4px 30px rgba(0,0,0,.35); font-weight:400; letter-spacing:-.04em; line-height:.9; font-size:clamp(4rem,24vw,17rem); }
-  h1 span { color:var(--accent); font-style:italic; text-shadow:0 4px 30px rgba(0,0,0,.25); }
-  .tag { color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.4); margin:1rem 0 2rem; font-style:italic; font-size:clamp(1.3rem,3vw,2rem); }
-  form { width:min(900px,100%); display:flex; gap:12px; }
-  input { flex:1; min-width:0; background:#fff; color:var(--fg); border:0; box-shadow:0 6px 24px rgba(0,0,0,.25); border-radius:999px; padding:1.4rem 2rem; font:inherit; font-size:1.5rem; font-style:italic; }
-  input:focus { outline:3px solid var(--accent); }
-  input::placeholder { color:#a8937f; }
-  button { background:var(--accent); color:#ffffff; box-shadow:0 6px 24px rgba(255,122,26,.45); border:0; border-radius:999px; padding:0 3rem; font:inherit; font-size:1.6rem; font-weight:700; font-style:italic; cursor:pointer; }
+  .hero { min-height:100vh; min-height:100svh; display:flex; flex-direction:column; justify-content:center; padding:40px 0; transition:min-height .6s ease; }
+  .searched .hero { min-height:55vh; }
+  .label { font-size:.8rem; color:var(--accent); letter-spacing:.12em; margin-bottom:8px; }
+  h1 { font-weight:700; letter-spacing:-.05em; line-height:.85; font-size:clamp(3.4rem,17vw,15rem); }
+  h1 em { font-style:normal; color:var(--accent); }
+  .tag { font-size:clamp(1rem,2.4vw,1.5rem); margin:22px 0 34px; font-weight:700; }
+  .tag::before { content:"\201C"; } .tag::after { content:"\201D"; }
+  form { display:flex; gap:0; width:min(900px,100%); border:2px solid var(--fg); }
+  input { flex:1; min-width:0; background:rgba(0,0,0,.6); color:var(--fg); border:0; border-radius:0; padding:1.3rem 1.4rem; font:inherit; font-size:1.4rem; font-weight:700; text-transform:uppercase; }
+  input::placeholder { color:#7d7d7d; }
+  input:focus { outline:0; background:#000; }
+  button { background:var(--accent); color:#000; border:0; border-radius:0; padding:0 2.4rem; font:inherit; font-size:1.4rem; font-weight:700; text-transform:uppercase; cursor:pointer; }
+  button:hover { background:#fff; }
   button:disabled { opacity:.5; cursor:wait; }
-  .note { color:#fff; text-shadow:0 1px 8px rgba(0,0,0,.5); font-size:1.05rem; margin:1rem 0; min-height:1.4em; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:28px; }
-  .film { box-shadow:0 8px 28px rgba(80,40,0,.12); background:var(--card); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; animation:rise .5s both; }
+  .note { color:var(--accent); font-size:.9rem; margin:16px 0; min-height:1.4em; letter-spacing:.08em; }
+  .note.err { color:#fff; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+  .film { border:1px solid var(--line); background:rgba(0,0,0,.55); display:flex; flex-direction:column; animation:rise .5s both; }
   @keyframes rise { from { opacity:0; transform:translateY(14px); } }
-  .poster { aspect-ratio:2/3; width:100%; object-fit:cover; display:block; background:#ffe3c9; }
-  .ph { aspect-ratio:2/3; display:flex; align-items:center; justify-content:center; padding:16px; text-align:center; font-size:1.3rem;
-    background:linear-gradient(160deg,#ffe3c9,#ffc08a); color:#8a3d00; }
-  .meta { padding:18px 20px 24px; }
-  .meta h2 { font-size:1.6rem; font-style:italic; font-weight:700; line-height:1.25; }
-  .dir { color:var(--accent); font-style:italic; font-size:1.3rem; margin:4px 0 8px; }
-  .why { color:var(--dim); font-size:1.05rem; }
+  .poster { aspect-ratio:2/3; width:100%; object-fit:cover; display:block; background:#1a1a1a; }
+  .ph { aspect-ratio:2/3; display:flex; align-items:center; justify-content:center; padding:16px; text-align:center; font-size:1.6rem; font-weight:700; letter-spacing:-.02em;
+    background:repeating-linear-gradient(135deg,#161616 0 14px,#0f0f0f 14px 28px); color:var(--accent); }
+  .meta { padding:16px 18px 22px; border-top:1px solid var(--line); }
+  .meta h2 { font-size:1.5rem; line-height:1.05; font-weight:700; letter-spacing:-.02em; }
   .meta a { color:inherit; text-decoration:none; }
-  .meta a:hover h2 { text-decoration:underline; }
+  .meta a:hover h2 { color:var(--accent); }
+  .meta small { font-size:.9rem; color:var(--dim); font-weight:400; }
+  .dir { margin:10px 0 8px; font-weight:700; }
+  .dir::before { content:"\201CDIRECTOR\201D "; color:var(--accent); font-size:.7rem; letter-spacing:.1em; display:block; }
+  .why { color:#cfcfcf; font-size:.85rem; text-transform:none; letter-spacing:0; }
+  #credit { position:fixed; left:16px; bottom:12px; font-size:.7rem; color:#bbb; z-index:2; letter-spacing:.1em; }
   @media (max-width:560px) {
     form { flex-direction:column; }
-    button { padding:1.3rem; font-size:1.5rem; }
-    .grid { grid-template-columns:1fr; gap:24px; }
+    input { font-size:1.25rem; }
+    button { padding:1.2rem; }
+    .grid { grid-template-columns:1fr; }
   }
-  .err { color:#c0392b; }
 </style>
 </head>
 <body>
-<div id="bg"></div><div id="shade"></div><div id="credit">Photo: Moorish Cinema, CC0</div>
+<div id="bg"></div><div id="shade"></div><div class="stripes"></div><div id="credit"></div>
 <main id="app">
   <section class="hero">
-    <h1>Fil<span>more</span>.</h1>
+    <p class="label">"FOR WATCHING"</p>
+    <h1>FIL<em>MORE</em>.</h1>
     <p class="tag">More is more.</p>
     <form id="form">
       <input id="q" autocomplete="off" autofocus placeholder="What do you feel like?">
@@ -64,17 +72,19 @@
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 
+// Background is a film poster, darkened by #shade. Falls back to the bundled photo.
 function setScene(image, label) {
-  if (!image) return;
+  const src = image || "/bg.jpg";
   const img = new Image();
   img.onload = () => {
-    $("bg").style.backgroundImage = `url("${image}")`;
+    $("bg").style.backgroundImage = `url("${src}")`;
     $("bg").classList.add("on");
-    $("credit").textContent = label || "";
+    $("credit").textContent = image && label ? `"POSTER" ${label}` : "";
   };
-  img.src = image;
+  img.src = src;
 }
-fetch("/api/scene").then((r) => r.json()).then((s) => setScene(s.image, s.title && `${s.title} (${s.year})`)).catch(() => {});
+setScene();
+fetch("/api/scene").then((r) => r.json()).then((s) => s.image && setScene(s.image, `${s.title} (${s.year})`)).catch(() => {});
 
 $("form").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -99,8 +109,8 @@ $("form").addEventListener("submit", async (e) => {
         ${f.tmdb ? `<a href="${esc(f.tmdb)}" target="_blank" rel="noopener">${title}</a>` : title}
         <p class="dir">${esc(f.director)}</p><p class="why">${esc(f.why)}</p></div></article>`;
     }).join("");
-    const lead = data.films.find((f) => f.backdrop);
-    if (lead) setScene(lead.backdrop, `${lead.title} (${lead.year})`);
+    const lead = data.films.find((f) => f.poster);
+    if (lead) setScene(lead.poster, `${lead.title} (${lead.year})`);
     $("grid").scrollIntoView({ behavior:"smooth", block:"start" });
   } catch (err) {
     $("note").className = "note err";
