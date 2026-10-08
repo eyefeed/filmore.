@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Filmore</title>
 <style>
+  @font-face { font-family:"Mr Dafoe"; src:url(/fonts/MrDafoe.ttf) format("truetype"); font-display:swap; }
   :root { --fg:#fff; --dim:rgba(255,255,255,.7); }
   * { box-sizing:border-box; margin:0; }
   body { background:#000; color:var(--fg); font:18px/1.4 "Helvetica Neue",Helvetica,Arial,sans-serif; min-height:100vh; }
@@ -16,8 +17,7 @@
   .searched main { padding-bottom:80px; }
   .hero { min-height:100vh; min-height:100svh; display:flex; flex-direction:column; justify-content:center; padding:40px 0; transition:min-height .6s ease; }
   .searched .hero { min-height:50vh; }
-  h1 { font-weight:700; letter-spacing:-.04em; line-height:1; font-size:clamp(3.4rem,20vw,6.4rem); margin-bottom:36px; }
-  h1 em { font:italic 400 1em/1 "Snell Roundhand","Apple Chancery","Lucida Calligraphy","URW Chancery L",Georgia,serif; letter-spacing:0; }
+  h1 { font:400 clamp(5rem,30vw,9rem)/1.05 "Mr Dafoe","Brush Script MT",cursive; letter-spacing:0; margin-bottom:28px; }
   form { display:flex; flex-direction:column; gap:12px; }
   input { width:100%; background:rgba(255,255,255,.12); color:var(--fg); border:1px solid rgba(255,255,255,.5); border-radius:14px; padding:1.1rem 1.2rem; font:inherit; font-size:1.2rem; }
   input::placeholder { color:var(--dim); }
@@ -42,7 +42,7 @@
 <div id="bg"></div><div id="phone"></div><div id="shade"></div>
 <main id="app">
   <section class="hero">
-    <h1>Fil<em>more</em>.</h1>
+    <h1>Filmore.</h1>
     <form id="form">
       <input id="q" autocomplete="off" autofocus placeholder="What do you feel like?">
       <button id="go">Find</button>

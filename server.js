@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 const MODEL = process.env.CLAUDE_MODEL || "claude-sonnet-5-5";
 const { ANTHROPIC_API_KEY, TMDB_READ_TOKEN } = process.env;
 
-const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml" };
+const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".ttf": "font/ttf", ".jpg": "image/jpeg", ".svg": "image/svg+xml" };
 
 const DEMO = [
   ["Burning", 2018, "Lee Chang-dong", "Slow, ambiguous Korean mystery that rewards patience."],
