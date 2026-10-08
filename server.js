@@ -62,6 +62,7 @@ async function verify(f) {
       title: d.title,
       director: directors.join(", "),
       year: (d.release_date || "").slice(0, 4) || f.year,
+      backdrop: d.backdrop_path ? `https://image.tmdb.org/t/p/w1280${d.backdrop_path}` : null,
       poster: d.poster_path ? `https://image.tmdb.org/t/p/w500${d.poster_path}` : null,
       tmdb: `https://www.themoviedb.org/movie/${d.id}`,
       countries: (d.production_countries || []).map((c) => c.name),
@@ -69,6 +70,26 @@ async function verify(f) {
     };
   }
   return null;
+}
+
+// Director-driven stills for the background; resolved through TMDB and cached.
+const SCENES = [
+  ["Burning", 2018], ["Oldboy", 2003], ["Memories of Murder", 2003], ["Once Upon a Time in Anatolia", 2011],
+  ["Winter Sleep", 2014], ["Uzak", 2002], ["In the Mood for Love", 2000], ["Stalker", 1979], ["Paris, Texas", 1984],
+  ["Blade Runner", 1982], ["The Lobster", 2015], ["Barton Fink", 1991], ["Taxi Driver", 1976], ["Parasite", 2019],
+  ["Mulholland Drive", 2001], ["Persona", 1966], ["Chungking Express", 1994], ["Apocalypse Now", 1979],
+  ["The Handmaiden", 2016], ["Seven Samurai", 1954], ["Come and See", 1985], ["Drive", 2011],
+];
+const sceneCache = new Map();
+
+async function scene() {
+  const [title, year] = SCENES[Math.floor(Math.random() * SCENES.length)];
+  if (!sceneCache.has(title)) {
+    const { results } = await tmdb(`/search/movie?query=${encodeURIComponent(title)}&year=${year}`);
+    const hit = results.find((r) => r.backdrop_path);
+    sceneCache.set(title, hit ? { title, year, image: `https://image.tmdb.org/t/p/w1280${hit.backdrop_path}` } : null);
+  }
+  return sceneCache.get(title);
 }
 
 async function recommend(query) {
@@ -81,6 +102,11 @@ async function recommend(query) {
 
 createServer(async (req, res) => {
   try {
+    if (req.url === "/api/scene") {
+      const found = TMDB_READ_TOKEN ? await scene().catch(() => null) : null;
+      res.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify(found || {}));
+      return;
+    }
     if (req.method === "POST" && req.url === "/api/recommend") {
       let body = "";
       for await (const c of req) body += c;

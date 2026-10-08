@@ -8,9 +8,13 @@
   :root { --bg:#0b0a0a; --fg:#f3ede4; --dim:#8f877c; --accent:#e8b04a; --card:#161413; }
   * { box-sizing:border-box; margin:0; }
   body { background:var(--bg); color:var(--fg); font:16px/1.5 Georgia,"Times New Roman",serif; min-height:100vh; }
+  #bg { position:fixed; inset:0; background:center/cover no-repeat; opacity:0; transition:opacity 1.6s ease; }
+  #bg.on { opacity:1; }
+  #shade { position:fixed; inset:0; pointer-events:none; background:linear-gradient(180deg,rgba(11,10,10,.55),rgba(11,10,10,.85) 60%,var(--bg)); }
+  #credit { position:fixed; left:16px; bottom:12px; font-size:.75rem; color:var(--dim); font-style:italic; z-index:2; }
   body::before { content:""; position:fixed; inset:0; pointer-events:none;
     background:radial-gradient(60% 50% at 50% 0%, rgba(232,176,74,.14), transparent 70%); }
-  main { position:relative; max-width:1200px; margin:0 auto; padding:0 16px; }
+  main { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:0 16px; }
   .searched main { padding-bottom:80px; }
   .hero { min-height:100vh; min-height:100svh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; transition:min-height .6s ease; }
   .searched .hero { min-height:46vh; }
@@ -45,9 +49,10 @@
 </style>
 </head>
 <body>
+<div id="bg"></div><div id="shade"></div><div id="credit"></div>
 <main id="app">
   <section class="hero">
-    <h1>Film<span>ore</span></h1>
+    <h1>Fil<span>more</span>.</h1>
     <p class="tag">Tell us what you love. We find what you'll love next.</p>
     <form id="form">
       <input id="q" autocomplete="off" autofocus placeholder="Dark Korean thrillers, slow Turkish drama...">
@@ -60,6 +65,18 @@
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+function setScene(image, label) {
+  if (!image) return;
+  const img = new Image();
+  img.onload = () => {
+    $("bg").style.backgroundImage = `url("${image}")`;
+    $("bg").classList.add("on");
+    $("credit").textContent = label || "";
+  };
+  img.src = image;
+}
+fetch("/api/scene").then((r) => r.json()).then((s) => setScene(s.image, s.title && `${s.title} (${s.year})`)).catch(() => {});
 
 $("form").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -84,6 +101,8 @@ $("form").addEventListener("submit", async (e) => {
         ${f.tmdb ? `<a href="${esc(f.tmdb)}" target="_blank" rel="noopener">${title}</a>` : title}
         <p class="dir">${esc(f.director)}</p><p class="why">${esc(f.why)}</p></div></article>`;
     }).join("");
+    const lead = data.films.find((f) => f.backdrop);
+    if (lead) setScene(lead.backdrop, `${lead.title} (${lead.year})`);
     $("grid").scrollIntoView({ behavior:"smooth", block:"start" });
   } catch (err) {
     $("note").className = "note err";
