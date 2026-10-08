@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filmore</title>
+<style>
+  :root { --bg:#0b0a0a; --fg:#f3ede4; --dim:#8f877c; --accent:#e8b04a; --card:#161413; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--fg); font:16px/1.5 Georgia,"Times New Roman",serif; min-height:100vh; }
+  body::before { content:""; position:fixed; inset:0; pointer-events:none;
+    background:radial-gradient(60% 50% at 50% 0%, rgba(232,176,74,.14), transparent 70%); }
+  main { position:relative; max-width:1200px; margin:0 auto; padding:0 16px; }
+  .searched main { padding-bottom:80px; }
+  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; transition:min-height .6s ease; }
+  .searched .hero { min-height:46vh; }
+  h1 { font-weight:400; letter-spacing:-.04em; line-height:.9; font-size:clamp(4rem,22vw,17rem); }
+  h1 span { color:var(--accent); font-style:italic; }
+  .tag { color:var(--dim); margin:1rem 0 2.5rem; font-style:italic; font-size:clamp(1rem,2.2vw,1.3rem); }
+  form { width:min(760px,100%); display:flex; gap:8px; }
+  input { flex:1; min-width:0; background:var(--card); color:var(--fg); border:1px solid #2c2926; border-radius:999px; padding:1.1rem 1.5rem; font:inherit; font-size:1.1rem; }
+  input:focus { outline:2px solid var(--accent); border-color:transparent; }
+  button { background:var(--accent); color:#1a1307; border:0; border-radius:999px; padding:0 1.8rem; font:inherit; font-weight:700; cursor:pointer; }
+  button:disabled { opacity:.5; cursor:wait; }
+  .note { color:var(--dim); font-size:.9rem; margin:1rem 0; min-height:1.4em; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:22px; }
+  .film { background:var(--card); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; animation:rise .5s both; }
+  @keyframes rise { from { opacity:0; transform:translateY(14px); } }
+  .poster { aspect-ratio:2/3; width:100%; object-fit:cover; display:block; background:#221f1c; }
+  .ph { aspect-ratio:2/3; display:flex; align-items:center; justify-content:center; padding:16px; text-align:center; font-size:1.3rem;
+    background:linear-gradient(160deg,#2a2118,#14110e); color:var(--accent); }
+  .meta { padding:12px 14px 16px; }
+  .meta h2 { font-size:1.05rem; font-weight:700; line-height:1.25; }
+  .dir { color:var(--accent); font-style:italic; margin:2px 0 6px; }
+  .why { color:var(--dim); font-size:.9rem; }
+  .meta a { color:inherit; text-decoration:none; }
+  .meta a:hover h2 { text-decoration:underline; }
+  .err { color:#ff8a7a; }
+</style>
+</head>
+<body>
+<main id="app">
+  <section class="hero">
+    <h1>Film<span>ore</span></h1>
+    <p class="tag">Tell us what you love. We find what you'll love next.</p>
+    <form id="form">
+      <input id="q" autocomplete="off" autofocus placeholder="Dark Korean thrillers, Ceylan-style slow Turkish drama, English comedy that bites...">
+      <button id="go">Find</button>
+    </form>
+    <p class="note" id="note"></p>
+  </section>
+  <section class="grid" id="grid"></section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const query = $("q").value.trim();
+  if (!query) return;
+  $("go").disabled = true;
+  $("note").className = "note";
+  $("note").textContent = "Searching...";
+  $("grid").innerHTML = "";
+  document.body.classList.add("searched");
+  try {
+    const res = await fetch("/api/recommend", { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify({ query }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    $("note").textContent = data.demo ? "Demo mode: add your API keys to get real picks for your input." :
+      data.unverified ? "Picks are not verified yet: add a TMDB token for posters and director checks." : "";
+    if (!data.films.length) $("note").textContent = "Nothing verified for that. Try describing it differently.";
+    $("grid").innerHTML = data.films.map((f, i) => {
+      const art = f.poster ? `<img class="poster" src="${esc(f.poster)}" alt="" loading="lazy">` : `<div class="ph">${esc(f.title)}</div>`;
+      const title = `<h2>${esc(f.title)} <small>(${esc(f.year)})</small></h2>`;
+      return `<article class="film" style="animation-delay:${i * 70}ms">${art}<div class="meta">
+        ${f.tmdb ? `<a href="${esc(f.tmdb)}" target="_blank" rel="noopener">${title}</a>` : title}
+        <p class="dir">${esc(f.director)}</p><p class="why">${esc(f.why)}</p></div></article>`;
+    }).join("");
+    $("grid").scrollIntoView({ behavior:"smooth", block:"start" });
+  } catch (err) {
+    $("note").className = "note err";
+    $("note").textContent = err.message || "Something went wrong. Try again.";
+  } finally { $("go").disabled = false; }
+});
+</script>
+</body>
+</html>
