@@ -5,62 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Filmore</title>
 <style>
-  :root { --bg:#f4ebe2; --fg:#58301e; --dim:#8a6a55; --accent:#ea5c2b; --peach:#efa389; --tan:#ae8868; --sand:#c6b29d; --wine:#653131; --line:rgba(255,255,255,.8); }
+  :root { --fg:#fff; --dim:rgba(255,255,255,.7); }
   * { box-sizing:border-box; margin:0; }
-  body { background:var(--bg); color:var(--fg); font:18px/1.35 "Helvetica Neue",Helvetica,Arial,sans-serif; min-height:100vh; text-transform:uppercase; letter-spacing:.02em; }
-  #bg { position:fixed; inset:-40px; background:url(/bg.jpg) center/cover no-repeat; filter:blur(28px) saturate(.8); }
-  #phone { position:fixed; top:0; bottom:0; left:50%; width:min(100vw,480px); transform:translateX(-50%); background:url(/bg.jpg) center top/cover no-repeat; opacity:0; transition:opacity 1.6s ease; }
+  body { background:#000; color:var(--fg); font:18px/1.4 "Helvetica Neue",Helvetica,Arial,sans-serif; min-height:100vh; }
+  #bg { position:fixed; inset:-40px; background:url(/bg.jpg) center/cover no-repeat; filter:blur(28px); }
+  #phone { position:fixed; top:0; bottom:0; left:50%; width:min(100vw,480px); transform:translateX(-50%); background:url(/bg.jpg) center/cover no-repeat; opacity:0; transition:opacity 1.6s ease; }
   #phone.on { opacity:1; }
-  #shade { position:fixed; top:0; bottom:0; left:50%; width:min(100vw,480px); transform:translateX(-50%); pointer-events:none; background:linear-gradient(160deg,rgba(239,163,137,.68),rgba(198,178,157,.74) 60%),linear-gradient(180deg,transparent 60%,var(--bg)); }
-  .stripes { position:fixed; left:50%; width:min(100vw,480px); transform:translateX(-50%); top:0; height:14px; z-index:3; background:repeating-linear-gradient(135deg,var(--accent) 0 12px,var(--peach) 12px 24px,var(--sand) 24px 36px,var(--wine) 36px 48px); }
-  main { position:relative; z-index:1; max-width:480px; margin:0 auto; padding:0 20px; }
+  #shade { position:fixed; inset:0; background:rgba(0,0,0,.7); pointer-events:none; }
+  main { position:relative; z-index:1; max-width:480px; margin:0 auto; padding:0 24px; }
   .searched main { padding-bottom:80px; }
   .hero { min-height:100vh; min-height:100svh; display:flex; flex-direction:column; justify-content:center; padding:40px 0; transition:min-height .6s ease; }
-  .searched .hero { min-height:55vh; }
-  .label { font-size:.85rem; font-weight:700; color:var(--fg); letter-spacing:.12em; margin-bottom:8px; }
-  h1 { font-weight:700; color:var(--fg); letter-spacing:-.05em; line-height:.85; font-size:clamp(3.4rem,19vw,6.2rem); }
-  h1 em { font-style:normal; color:var(--accent); }
-  .tag { font-size:clamp(1rem,2.4vw,1.5rem); margin:22px 0 34px; font-weight:700; }
-  .tag::before { content:"\201C"; } .tag::after { content:"\201D"; }
-  form { display:flex; flex-direction:column; gap:8px; width:100%; padding:8px; background:rgba(255,250,245,.88); border-radius:28px; box-shadow:0 10px 40px rgba(88,48,30,.25); }
-  input { flex:1; min-width:0; background:transparent; color:var(--fg); border:0; padding:1.1rem 1.4rem; font:inherit; font-size:1.3rem; font-weight:500; text-transform:uppercase; }
-  input::placeholder { color:#a08670; }
-  input:focus { outline:0; }
-  button { background:var(--accent); color:#fff; border:0; border-radius:999px; padding:1.1rem 2.4rem; font:inherit; font-size:1.3rem; font-weight:600; text-transform:uppercase; cursor:pointer; }
-  button:hover { background:var(--wine); }
+  .searched .hero { min-height:50vh; }
+  h1 { font-weight:700; letter-spacing:-.04em; line-height:1; font-size:clamp(3.4rem,20vw,6.4rem); margin-bottom:36px; }
+  h1 em { font:italic 400 1em/1 "Snell Roundhand","Apple Chancery","Lucida Calligraphy","URW Chancery L",Georgia,serif; letter-spacing:0; }
+  form { display:flex; flex-direction:column; gap:12px; }
+  input { width:100%; background:rgba(255,255,255,.12); color:var(--fg); border:1px solid rgba(255,255,255,.5); border-radius:14px; padding:1.1rem 1.2rem; font:inherit; font-size:1.2rem; }
+  input::placeholder { color:var(--dim); }
+  input:focus { outline:0; border-color:#fff; background:rgba(255,255,255,.2); }
+  button { background:#fff; color:#000; border:0; border-radius:14px; padding:1.1rem; font:inherit; font-size:1.2rem; font-weight:700; cursor:pointer; }
   button:disabled { opacity:.5; cursor:wait; }
-  .note { color:var(--accent); font-size:.9rem; margin:16px 0; min-height:1.4em; letter-spacing:.08em; }
-  .note.err { color:var(--wine); }
-  .grid { display:grid; grid-template-columns:1fr; gap:22px; }
-  .film { border-radius:22px; overflow:hidden; box-shadow:0 10px 30px rgba(88,48,30,.18); background:rgba(255,250,245,.9); display:flex; flex-direction:column; animation:rise .5s both; }
+  .note { color:var(--dim); font-size:.95rem; margin:16px 0; min-height:1.4em; }
+  .grid { display:grid; gap:22px; }
+  .film { border-radius:14px; overflow:hidden; background:rgba(255,255,255,.1); animation:rise .5s both; }
   @keyframes rise { from { opacity:0; transform:translateY(14px); } }
-  .poster { aspect-ratio:2/3; width:100%; object-fit:cover; display:block; background:#e6d9cb; }
-  .ph { aspect-ratio:2/3; display:flex; align-items:center; justify-content:center; padding:16px; text-align:center; font-size:1.6rem; font-weight:700; letter-spacing:-.02em;
-    background:linear-gradient(160deg,var(--peach),var(--sand)); color:var(--fg); }
+  .poster { aspect-ratio:2/3; width:100%; object-fit:cover; display:block; background:#222; }
+  .ph { aspect-ratio:2/3; display:flex; align-items:center; justify-content:center; padding:16px; text-align:center; font-size:1.6rem; font-weight:700; background:rgba(255,255,255,.08); }
   .meta { padding:16px 18px 22px; }
-  .meta h2 { font-size:1.5rem; line-height:1.05; font-weight:700; letter-spacing:-.02em; }
+  .meta h2 { font-size:1.5rem; line-height:1.1; font-weight:700; }
   .meta a { color:inherit; text-decoration:none; }
-  .meta a:hover h2 { color:var(--accent); }
   .meta small { font-size:.9rem; color:var(--dim); font-weight:400; }
-  .dir { margin:10px 0 8px; font-weight:700; }
-  .dir::before { content:"\201CDIRECTOR\201D "; color:var(--accent); font-size:.7rem; letter-spacing:.1em; display:block; }
-  .why { color:var(--dim); font-size:.85rem; text-transform:none; letter-spacing:0; }
-  #credit { position:fixed; left:50%; width:min(100vw,480px); padding:0 20px; transform:translateX(-50%); bottom:12px; font-size:.7rem; color:var(--dim); z-index:2; letter-spacing:.1em; }
-  @media (max-width:560px) {
-    form { flex-direction:column; border-radius:28px; }
-    input { font-size:1.25rem; }
-    button { padding:1.1rem; }
-    .grid { grid-template-columns:1fr; }
-  }
+  .dir { margin:8px 0; font:italic 1.2rem Georgia,serif; }
+  .why { color:var(--dim); font-size:.95rem; }
 </style>
 </head>
 <body>
-<div id="bg"></div><div id="phone"></div><div id="shade"></div><div class="stripes"></div><div id="credit"></div>
+<div id="bg"></div><div id="phone"></div><div id="shade"></div>
 <main id="app">
   <section class="hero">
-    <p class="label">"FOR WATCHING"</p>
-    <h1>FIL<em>MORE</em>.</h1>
-    <p class="tag">More is more.</p>
+    <h1>Fil<em>more</em>.</h1>
     <form id="form">
       <input id="q" autocomplete="off" autofocus placeholder="What do you feel like?">
       <button id="go">Find</button>
@@ -73,26 +55,23 @@
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 
-// Background is a film poster, darkened by #shade. Falls back to the bundled photo.
-function setScene(image, label) {
-  const src = image || "/bg.jpg";
+// Background is a film poster under a 70% black overlay; falls back to the bundled photo.
+function setScene(src) {
   const img = new Image();
   img.onload = () => {
     $("bg").style.backgroundImage = $("phone").style.backgroundImage = `url("${src}")`;
     $("phone").classList.add("on");
-    $("credit").textContent = image && label ? `"POSTER" ${label}` : "";
   };
   img.src = src;
 }
-setScene();
-fetch("/api/scene").then((r) => r.json()).then((s) => s.image && setScene(s.image, `${s.title} (${s.year})`)).catch(() => {});
+setScene("/bg.jpg");
+fetch("/api/scene").then((r) => r.json()).then((s) => s.image && setScene(s.image)).catch(() => {});
 
 $("form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const query = $("q").value.trim();
   if (!query) return;
   $("go").disabled = true;
-  $("note").className = "note";
   $("note").textContent = "Searching...";
   $("grid").innerHTML = "";
   document.body.classList.add("searched");
@@ -111,10 +90,9 @@ $("form").addEventListener("submit", async (e) => {
         <p class="dir">${esc(f.director)}</p><p class="why">${esc(f.why)}</p></div></article>`;
     }).join("");
     const lead = data.films.find((f) => f.poster);
-    if (lead) setScene(lead.poster, `${lead.title} (${lead.year})`);
+    if (lead) setScene(lead.poster);
     $("grid").scrollIntoView({ behavior:"smooth", block:"start" });
   } catch (err) {
-    $("note").className = "note err";
     $("note").textContent = err.message || "Something went wrong. Try again.";
   } finally { $("go").disabled = false; }
 });
