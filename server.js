@@ -72,16 +72,116 @@ async function verify(f) {
   return null;
 }
 
-// Background: a random poster from TMDB's top 100 rated films, cached.
-let top100;
+// Background: a random poster from a list of IMDb top-100 films, resolved through TMDB and cached.
+const TOP100 = [
+  ["The Shawshank Redemption", 1994],
+  ["The Godfather", 1972],
+  ["The Dark Knight", 2008],
+  ["The Godfather Part II", 1974],
+  ["12 Angry Men", 1957],
+  ["Schindler's List", 1993],
+  ["The Lord of the Rings: The Return of the King", 2003],
+  ["Pulp Fiction", 1994],
+  ["The Good, the Bad and the Ugly", 1966],
+  ["Fight Club", 1999],
+  ["Forrest Gump", 1994],
+  ["Inception", 2010],
+  ["Star Wars: Episode V - The Empire Strikes Back", 1980],
+  ["The Matrix", 1999],
+  ["Goodfellas", 1990],
+  ["One Flew Over the Cuckoo's Nest", 1975],
+  ["Se7en", 1995],
+  ["Seven Samurai", 1954],
+  ["It's a Wonderful Life", 1946],
+  ["The Silence of the Lambs", 1991],
+  ["City of God", 2002],
+  ["Saving Private Ryan", 1998],
+  ["Life Is Beautiful", 1997],
+  ["Interstellar", 2014],
+  ["The Green Mile", 1999],
+  ["Spirited Away", 2001],
+  ["Parasite", 2019],
+  ["L\u00e9on: The Professional", 1994],
+  ["Gladiator", 2000],
+  ["The Lion King", 1994],
+  ["Back to the Future", 1985],
+  ["The Pianist", 2002],
+  ["Terminator 2: Judgment Day", 1991],
+  ["Psycho", 1960],
+  ["Modern Times", 1936],
+  ["American History X", 1998],
+  ["Whiplash", 2014],
+  ["The Departed", 2006],
+  ["The Prestige", 2006],
+  ["Grave of the Fireflies", 1988],
+  ["Once Upon a Time in the West", 1968],
+  ["Casablanca", 1942],
+  ["Cinema Paradiso", 1988],
+  ["Rear Window", 1954],
+  ["Alien", 1979],
+  ["City Lights", 1931],
+  ["Apocalypse Now", 1979],
+  ["Memento", 2000],
+  ["Django Unchained", 2012],
+  ["Raiders of the Lost Ark", 1981],
+  ["WALL\u00b7E", 2008],
+  ["The Lives of Others", 2006],
+  ["Sunset Blvd.", 1950],
+  ["Paths of Glory", 1957],
+  ["Oldboy", 2003],
+  ["Witness for the Prosecution", 1957],
+  ["The Shining", 1980],
+  ["Dr. Strangelove", 1964],
+  ["Spider-Man: Into the Spider-Verse", 2018],
+  ["Aliens", 1986],
+  ["American Beauty", 1999],
+  ["The Dark Knight Rises", 2012],
+  ["Amadeus", 1984],
+  ["Inglourious Basterds", 2009],
+  ["Toy Story", 1995],
+  ["Coco", 2017],
+  ["Good Will Hunting", 1997],
+  ["Princess Mononoke", 1997],
+  ["Requiem for a Dream", 2000],
+  ["Star Wars", 1977],
+  ["Reservoir Dogs", 1992],
+  ["Your Name.", 2016],
+  ["3 Idiots", 2009],
+  ["Once Upon a Time in America", 1984],
+  ["Braveheart", 1995],
+  ["Das Boot", 1981],
+  ["Come and See", 1985],
+  ["Metropolis", 1927],
+  ["Singin' in the Rain", 1952],
+  ["Taxi Driver", 1976],
+  ["2001: A Space Odyssey", 1968],
+  ["Vertigo", 1954],
+  ["Full Metal Jacket", 1987],
+  ["Double Indemnity", 1944],
+  ["Scarface", 1983],
+  ["Citizen Kane", 1941],
+  ["The Apartment", 1960],
+  ["North by Northwest", 1959],
+  ["Heat", 1995],
+  ["A Clockwork Orange", 1971],
+  ["Lawrence of Arabia", 1962],
+  ["Snatch", 2000],
+  ["Ikiru", 1952],
+  ["Bicycle Thieves", 1948],
+  ["The Kid", 1921],
+  ["Hamilton", 2020],
+  ["Some Like It Hot", 1959],
+];
+const posterCache = new Map();
 
 async function scene() {
-  if (!top100) {
-    const pages = await Promise.all([1, 2, 3, 4, 5].map((n) => tmdb(`/movie/top_rated?page=${n}`)));
-    top100 = pages.flatMap((p) => p.results).filter((m) => m.poster_path);
+  const [title, year] = TOP100[Math.floor(Math.random() * TOP100.length)];
+  if (!posterCache.has(title)) {
+    const { results } = await tmdb(`/search/movie?query=${encodeURIComponent(title)}&year=${year}`);
+    const hit = results.find((r) => r.poster_path);
+    posterCache.set(title, hit ? { title, year, image: `https://image.tmdb.org/t/p/w780${hit.poster_path}` } : {});
   }
-  const m = top100[Math.floor(Math.random() * top100.length)];
-  return { title: m.title, year: (m.release_date || "").slice(0, 4), image: `https://image.tmdb.org/t/p/w780${m.poster_path}` };
+  return posterCache.get(title);
 }
 
 async function recommend(query) {
