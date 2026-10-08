@@ -8,29 +8,30 @@
   :root { --bg:#f4ebe2; --fg:#58301e; --dim:#8a6a55; --accent:#ea5c2b; --peach:#efa389; --tan:#ae8868; --sand:#c6b29d; --wine:#653131; --line:rgba(255,255,255,.8); }
   * { box-sizing:border-box; margin:0; }
   body { background:var(--bg); color:var(--fg); font:18px/1.35 "Helvetica Neue",Helvetica,Arial,sans-serif; min-height:100vh; text-transform:uppercase; letter-spacing:.02em; }
-  #bg { position:fixed; inset:0; background:url(/bg.jpg) center/cover no-repeat; opacity:0; transition:opacity 1.6s ease; filter:saturate(.8); }
-  #bg.on { opacity:1; }
-  #shade { position:fixed; inset:0; pointer-events:none; background:linear-gradient(160deg,rgba(239,163,137,.68),rgba(198,178,157,.74) 60%),linear-gradient(180deg,transparent 60%,var(--bg)); }
-  .stripes { position:fixed; left:0; right:0; top:0; height:14px; z-index:3; background:repeating-linear-gradient(135deg,var(--accent) 0 12px,var(--peach) 12px 24px,var(--sand) 24px 36px,var(--wine) 36px 48px); }
-  main { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:0 16px; }
+  #bg { position:fixed; inset:-40px; background:url(/bg.jpg) center/cover no-repeat; filter:blur(28px) saturate(.8); }
+  #phone { position:fixed; top:0; bottom:0; left:50%; width:min(100vw,480px); transform:translateX(-50%); background:url(/bg.jpg) center top/cover no-repeat; opacity:0; transition:opacity 1.6s ease; }
+  #phone.on { opacity:1; }
+  #shade { position:fixed; top:0; bottom:0; left:50%; width:min(100vw,480px); transform:translateX(-50%); pointer-events:none; background:linear-gradient(160deg,rgba(239,163,137,.68),rgba(198,178,157,.74) 60%),linear-gradient(180deg,transparent 60%,var(--bg)); }
+  .stripes { position:fixed; left:50%; width:min(100vw,480px); transform:translateX(-50%); top:0; height:14px; z-index:3; background:repeating-linear-gradient(135deg,var(--accent) 0 12px,var(--peach) 12px 24px,var(--sand) 24px 36px,var(--wine) 36px 48px); }
+  main { position:relative; z-index:1; max-width:480px; margin:0 auto; padding:0 20px; }
   .searched main { padding-bottom:80px; }
   .hero { min-height:100vh; min-height:100svh; display:flex; flex-direction:column; justify-content:center; padding:40px 0; transition:min-height .6s ease; }
   .searched .hero { min-height:55vh; }
   .label { font-size:.85rem; font-weight:700; color:var(--fg); letter-spacing:.12em; margin-bottom:8px; }
-  h1 { font-weight:700; color:var(--fg); letter-spacing:-.05em; line-height:.85; font-size:clamp(3.4rem,17vw,15rem); }
+  h1 { font-weight:700; color:var(--fg); letter-spacing:-.05em; line-height:.85; font-size:clamp(3.4rem,19vw,6.2rem); }
   h1 em { font-style:normal; color:var(--accent); }
   .tag { font-size:clamp(1rem,2.4vw,1.5rem); margin:22px 0 34px; font-weight:700; }
   .tag::before { content:"\201C"; } .tag::after { content:"\201D"; }
-  form { display:flex; gap:8px; width:min(900px,100%); padding:8px; background:rgba(255,250,245,.88); border-radius:999px; box-shadow:0 10px 40px rgba(88,48,30,.25); }
+  form { display:flex; flex-direction:column; gap:8px; width:100%; padding:8px; background:rgba(255,250,245,.88); border-radius:28px; box-shadow:0 10px 40px rgba(88,48,30,.25); }
   input { flex:1; min-width:0; background:transparent; color:var(--fg); border:0; padding:1.1rem 1.4rem; font:inherit; font-size:1.3rem; font-weight:500; text-transform:uppercase; }
   input::placeholder { color:#a08670; }
   input:focus { outline:0; }
-  button { background:var(--accent); color:#fff; border:0; border-radius:999px; padding:0 2.4rem; font:inherit; font-size:1.3rem; font-weight:600; text-transform:uppercase; cursor:pointer; }
+  button { background:var(--accent); color:#fff; border:0; border-radius:999px; padding:1.1rem 2.4rem; font:inherit; font-size:1.3rem; font-weight:600; text-transform:uppercase; cursor:pointer; }
   button:hover { background:var(--wine); }
   button:disabled { opacity:.5; cursor:wait; }
   .note { color:var(--accent); font-size:.9rem; margin:16px 0; min-height:1.4em; letter-spacing:.08em; }
   .note.err { color:var(--wine); }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+  .grid { display:grid; grid-template-columns:1fr; gap:22px; }
   .film { border-radius:22px; overflow:hidden; box-shadow:0 10px 30px rgba(88,48,30,.18); background:rgba(255,250,245,.9); display:flex; flex-direction:column; animation:rise .5s both; }
   @keyframes rise { from { opacity:0; transform:translateY(14px); } }
   .poster { aspect-ratio:2/3; width:100%; object-fit:cover; display:block; background:#e6d9cb; }
@@ -44,7 +45,7 @@
   .dir { margin:10px 0 8px; font-weight:700; }
   .dir::before { content:"\201CDIRECTOR\201D "; color:var(--accent); font-size:.7rem; letter-spacing:.1em; display:block; }
   .why { color:var(--dim); font-size:.85rem; text-transform:none; letter-spacing:0; }
-  #credit { position:fixed; left:16px; bottom:12px; font-size:.7rem; color:var(--dim); z-index:2; letter-spacing:.1em; }
+  #credit { position:fixed; left:50%; width:min(100vw,480px); padding:0 20px; transform:translateX(-50%); bottom:12px; font-size:.7rem; color:var(--dim); z-index:2; letter-spacing:.1em; }
   @media (max-width:560px) {
     form { flex-direction:column; border-radius:28px; }
     input { font-size:1.25rem; }
@@ -54,7 +55,7 @@
 </style>
 </head>
 <body>
-<div id="bg"></div><div id="shade"></div><div class="stripes"></div><div id="credit"></div>
+<div id="bg"></div><div id="phone"></div><div id="shade"></div><div class="stripes"></div><div id="credit"></div>
 <main id="app">
   <section class="hero">
     <p class="label">"FOR WATCHING"</p>
@@ -77,8 +78,8 @@ function setScene(image, label) {
   const src = image || "/bg.jpg";
   const img = new Image();
   img.onload = () => {
-    $("bg").style.backgroundImage = `url("${src}")`;
-    $("bg").classList.add("on");
+    $("bg").style.backgroundImage = $("phone").style.backgroundImage = `url("${src}")`;
+    $("phone").classList.add("on");
     $("credit").textContent = image && label ? `"POSTER" ${label}` : "";
   };
   img.src = src;
