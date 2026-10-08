@@ -20,3 +20,13 @@ Claude proposes 10 films. Each is checked against TMDB (title, year, director mu
 ## Next
 
 Watched / rewatch / not for us statuses, director pages, per-person profiles, streaming availability.
+
+## Deploy on the server
+
+```
+git clone https://github.com/eyefeed/filmore. filmore && cd filmore
+git checkout claude/filmore-landing
+bash deploy.sh
+```
+
+The script asks for the keys with hidden input and stores them in `.env` (owner-only). Update later with `git pull && docker compose up -d --build`.
